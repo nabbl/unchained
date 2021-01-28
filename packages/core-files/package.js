@@ -1,6 +1,6 @@
 Package.describe({
   name: 'unchained:core-files',
-  version: '0.60.0',
+  version: '0.61.0',
   summary: 'Unchained Engine Core: Files',
   git: 'https://github.com/unchainedshop/unchained',
   documentation: 'README.md',

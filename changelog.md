@@ -1,3 +1,17 @@
+# v0.61.0
+
+This is a bugfix release based on learnings from upgrading client projects
+
+## Breaking changes
+- [api] Removes filterContext and evalContext
+- [core] Enrollment E-Mails are sent automatically when `enrollUser` is used with an empty password
+
+## Minor
+- [api] Re-introduce `context` field to startPlatform, allowing access to the unchained context function so it's possible to adjust the Apollo Server context freely
+- [core] Fix regression with forced sortKey parameters when modifying links, filters or products
+- [core] Fix regression with enrollment of users triggering verification e-mail #307
+- [core] Sends custom AccountsJs Hooks `LoginTokenCreated` and `VerifyEmailSuccess` to hook into E-Mail verification (re-enables features based on that prior Unchained < 0.61.0)
+
 # v0.60.0
 
 We are currently rebuilding parts of Unchained under the hood with a new code structure that helps developers to easily add new resolvers and access the core API's through typescript types.
@@ -5,7 +19,14 @@ We are currently rebuilding parts of Unchained under the hood with a new code st
 ## Breaking Changes
 - [api] `Mutation.setBaseLanguage` removed, base language now set through env `LANG`
 - [api] `Mutation.setBaseCountry` removed, base language now set through env `COUNTRY`
+- [api] `isBase` removed for countries and languages
 - [api] Remove OTP based access to an order
+- [core] `Filters.removeFilter` now returns id instead of object
+- [core] Removed Assortment helpers `addFilter`, `removeFilter`, `searchProducts`
+- [core] Removed Assortment Filter helper `assortmentFilter.filter`
+- [core] `findProviderById` & `findReviewById` removed
+- [core] You cannot `import 'meteor/unchained:core-worker/plugins/heartbeat'` anymore without typescript package
+- [api] NotFoundErrors have been removed from various queries which return an optional single entity, like Query.product(...): Product #299, affects `Query.country`, `Query.currency`, `Query.deliveryProvider`, `Query.filter`, `Query.language`, `Query.order`, `Query.paymentProvider`, `Query.product`, `Query.productCatalogPrices`, `Query.productReview`, `Query.quotation`, `Query.searchProducts (assortmentId)`, `Query.subscription`, `Query.user`, `Query.warehousingProvider`, `Query.work`
 
 ## Major
 - [api] Add Assortment.childrenCount to get a number of child assortments
@@ -15,7 +36,7 @@ We are currently rebuilding parts of Unchained under the hood with a new code st
 - [utils] Multiple functions have been moved to utils from core.
 - [core] The "core" package now is an umbrella for all core modules and does not provide any other functions except for the function that loads all modules in order and ties together the typescript types
 - [roles] Roles package got refactored only keeping a fraction of the previous APIs.
- We are currently rebuilding parts of Unchained under the hood with a new code structure that helps developers to easily add new resolvers and access the core API's through typescrypt types
+ We are currently rebuilding parts of Unchained under the hood with a new code structure that helps developers to easily add new resolvers and access the core API's through typescript types
 - [api,core] Business logic and db calls are now wrapped in functions and moved from api to the core packages
 - [pricing] New open-source pricing plugins:
 - - EUR catalog price auto conversion with ECB rates

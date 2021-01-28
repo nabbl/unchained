@@ -1,11 +1,8 @@
 import { log } from 'meteor/unchained:core-logger';
-import {
-  accountsPassword,
-  accountsServer,
-} from 'meteor/unchained:core-accountsjs';
+import { Users } from 'meteor/unchained:core-users';
 import hashPassword from '../../hashPassword';
 
-export default async function createUser(root, options) {
+export default async function createUser(root, options, context) {
   log('mutation createUser', { email: options.email });
   if (!options.password && !options.plainPassword) {
     throw new Error('Password is required');
@@ -15,16 +12,7 @@ export default async function createUser(root, options) {
     mappedOptions.password = hashPassword(mappedOptions.plainPassword);
     delete mappedOptions.plainPassword;
   }
-  const userId = await accountsPassword.createUser(mappedOptions);
-  const createdUser = await accountsServer.findUserById(userId);
 
-  const {
-    user: { services, roles, ...userData },
-    token: loginToken,
-  } = await accountsServer.loginWithUser(createdUser);
-  return {
-    id: userData._id,
-    token: loginToken.token,
-    tokenExpires: loginToken.when,
-  };
+  const createdUser = await Users.createUser(mappedOptions, context);
+  return Users.createLoginToken(createdUser, context);
 }
