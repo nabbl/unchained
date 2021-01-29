@@ -14,7 +14,7 @@ export default async () => {
     const admin = await Users.createUser({
       username: 'admin',
       roles: ['admin'],
-      emails: [{ address: 'admin@unchained.local', verified: true }],
+      email: 'admin@unchained.local',
       profile: { address: {} },
       guest: false,
       lastBillingAddress: {
