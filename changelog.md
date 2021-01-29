@@ -4,6 +4,9 @@
 
 - Be sure to use `removeFiles` on files collections instead of simply `files`. `removeFiles` ensure the removal of the document and also the associated GridFS file.
 
+## Major
+- [files] had undergone a similar change to the roles package keeping only the used APIs and improving the package health by adding Typescript.
+
 ## Minor
 
 # v0.61.0
