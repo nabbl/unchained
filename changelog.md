@@ -1,3 +1,11 @@
+# vNext
+
+## Breaking changes
+
+- Be sure to use `removeFiles` on files collections instead of simply `files`. `removeFiles` ensure the removal of the document and also the associated GridFS file.
+
+## Minor
+
 # v0.61.0
 
 This is a bugfix release based on learnings from upgrading client projects
