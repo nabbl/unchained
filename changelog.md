@@ -1,5 +1,7 @@
-# vNext
+# vNEXT
 
+## Breaking changes
+- [core] Remove cron worker `unchained:core-worker/workers/cron`, use the interval worker instead
 - [schema] `Money` type has been completely removed and replace with `Price`.
   This change will affect the following types and any other type that has fields of this types
 

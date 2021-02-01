@@ -1,7 +1,6 @@
 import { WorkerDirector } from 'meteor/unchained:core-worker';
 import EventListenerWorker from 'meteor/unchained:core-worker/workers/eventListener';
-import CronWorker from 'meteor/unchained:core-worker/workers/cron';
-// import IntervalWorker from 'meteor/unchained:core-worker/workers/interval';
+import IntervalWorker from 'meteor/unchained:core-worker/workers/interval';
 import FailedRescheduler from 'meteor/unchained:core-worker/schedulers/failedRescheduler';
 
 export const workerTypeDefs = () => [
@@ -20,14 +19,9 @@ export default ({ cronText }) => {
       WorkerDirector,
     })
   );
-  // handlers.push(
-  //   new IntervalWorker({
-  //     WorkerDirector,
-  //   })
-  // );
   if (cronText) {
     handlers.push(
-      new CronWorker({
+      new IntervalWorker({
         WorkerDirector,
         cronText,
       })
