@@ -22,6 +22,7 @@ import {
   getMimeType,
   storagePath,
   accessDenied,
+  getContentDisposition,
 } from './helpers';
 
 export default class FilesCollection extends Mongo.Collection<FileObj> {
@@ -443,7 +444,7 @@ export default class FilesCollection extends Mongo.Collection<FileObj> {
 
       http.response.setHeader(
         'Content-Disposition',
-        `inline; filename="${file.name}"`
+        getContentDisposition(file.name, http?.params?.query?.download)
       );
       http.response.setHeader(
         'Cache-Control',

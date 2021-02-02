@@ -1,12 +1,23 @@
 import fileType from 'file-type';
 import crypto from 'crypto';
+import fs from 'fs';
+import os from 'os';
+import { sep } from 'path';
 import { Meteor } from 'meteor/meteor';
 import { MongoInternals } from 'meteor/mongo';
 import { FileTypes, FileObj } from './types';
 
-const { FILE_STORAGE_PATH } = process.env;
-
 export const bound = Meteor.bindEnvironment((callback) => callback());
+
+export const getContentDisposition = (fileName, downloadFlag) => {
+  const dispositionType = downloadFlag === 'true' ? 'attachment;' : 'inline;';
+
+  const encodedName = encodeURIComponent(fileName);
+  const dispositionName = `filename="${encodedName}"; filename=*UTF-8"${encodedName}";`;
+  const dispositionEncoding = 'charset=utf-8';
+
+  return `${dispositionType} ${dispositionName} ${dispositionEncoding}`;
+};
 
 export const helpers = {
   isString(val): boolean {
@@ -158,11 +169,12 @@ export const responseHeaders = (responseCode, versionRef) => {
   return headers;
 };
 
+const tmpDir = os.tmpdir();
+
+const FILE_STORAGE_TEMP_FOLDER = fs.mkdtempSync(`${tmpDir}${sep}`);
+
 export const storagePath = (collectionName: string) => {
-  if (FILE_STORAGE_PATH) {
-    return `${FILE_STORAGE_PATH}/${collectionName}`;
-  }
-  return `assets/app/uploads/${collectionName}`;
+  return `${FILE_STORAGE_TEMP_FOLDER}${sep}${collectionName}`;
 };
 
 export const updateFileTypes = (type: string): FileTypes => {

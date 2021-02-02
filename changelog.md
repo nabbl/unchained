@@ -7,7 +7,20 @@
 ## Major
 - [files] had undergone a similar change to the roles package keeping only the used APIs and improving the package health by adding Typescript.
 
-## Minor
+# v0.61.1
+
+This is a bugfix release based on learnings from upgrading client projects
+
+## Breaking changes
+- [core] `Users.createUser` now sends messages by default, you have to explicitly bail out by either providing an option `skipMessaging` to true or set the new `autoMessagingAfterUserCreation` module param of users to `false`. Take a look at your seed scripts.
+- [platform] Certain fields like `emails` and `services` are now blocked from passing to `Users.createUser`. If you have used `emails` in `createUser` seeding before, use email. If you want to skip e-mail verification forcefully, use `initialPassword: true`. See the changes in the minimal example seed file to get a glimpse.
+
+## Minor
+- [examples] Fix minimal example not seeding
+- [api] Fix children not receiving includeInactive
+- [core] Fix core not receiving module configuration of users
+- [core] Fix Assortments.sync always auto publishing all assortments
+- [platform] Fix broken cart migration
 
 # v0.61.0
 

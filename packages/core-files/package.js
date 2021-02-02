@@ -1,6 +1,6 @@
 Package.describe({
   name: 'unchained:core-files',
-  version: '0.61.0',
+  version: '0.61.1',
   summary: 'Unchained Engine Core: Files',
   git: 'https://github.com/unchainedshop/unchained',
   documentation: 'README.md',
@@ -22,7 +22,7 @@ Package.onUse((api) => {
 
   api.mainModule('core-files.ts');
   api.export('FilesCollection');
-  api.use('unchained:core-settings@0.60.0');
+  api.use('unchained:core-settings@0.61.0');
 });
 
 Package.onTest((api) => {

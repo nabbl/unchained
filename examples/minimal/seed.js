@@ -11,31 +11,30 @@ export default async () => {
     if (Users.find({ username: 'admin' }).count() > 0) {
       return;
     }
-    const admin = await Users.createUser({
-      username: 'admin',
-      roles: ['admin'],
-      email: 'admin@unchained.local',
-      profile: { address: {} },
-      guest: false,
-      lastBillingAddress: {
-        firstName: 'Caraig Jackson',
-        lastName: 'Mengistu',
-        company: 'false',
-        postalCode: '52943',
-        countryCode: 'ET',
-        city: 'Addis Ababa',
-        addressLine: '75275 Bole Mikael',
-        addressLine2: 'Bole 908',
-        regionCode: 'false',
+    const admin = await Users.createUser(
+      {
+        username: 'admin',
+        roles: ['admin'],
+        email: 'admin@unchained.local',
+        password: hashPassword('password'),
+        initialPassword: true,
+        profile: { address: {} },
+        guest: false,
+        lastBillingAddress: {
+          firstName: 'Caraig Jackson',
+          lastName: 'Mengistu',
+          company: 'false',
+          postalCode: '52943',
+          countryCode: 'ET',
+          city: 'Addis Ababa',
+          addressLine: '75275 Bole Mikael',
+          addressLine2: 'Bole 908',
+          regionCode: 'false',
+        },
       },
-      language: {
-        isoCode: 'de',
-      },
-      country: {
-        isoCode: 'CH',
-      },
-    });
-    await admin.setPassword(hashPassword('password'));
+      {},
+      { skipMessaging: true },
+    );
 
     const languages = ['de', 'fr'].map((code) => {
       const language = Languages.createLanguage({
@@ -51,21 +50,21 @@ export default async () => {
         isActive: true,
         authorId: admin._id,
       });
-      return currency._id;
+      return currency;
     });
     const countries = ['CH'].map((code, key) => {
       const country = Countries.createCountry({
         isoCode: code,
         isActive: true,
         authorId: admin._id,
-        defaultCurrencyId: currencies[key],
+        defaultCurrencyId: currencies[key]._id,
       });
       return country.isoCode;
     });
     logger.log(`
       initialized database with
       \ncountries: ${countries.join(',')}
-      \ncurrencies: ${currencies.join(',')}
+      \ncurrencies: ${currencies.map((c) => c.isoCode).join(',')}
       \nlanguages: ${languages.join(',')}
       \nuser: admin@unchained.local / password`);
   } catch (e) {

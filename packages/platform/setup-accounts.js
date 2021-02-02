@@ -6,51 +6,21 @@ import {
 } from 'meteor/unchained:core-accountsjs';
 import { Users } from 'meteor/unchained:core-users';
 import { Orders } from 'meteor/unchained:core-orders';
-import { Promise } from 'meteor/promise';
-import cloneDeep from 'lodash.clonedeep';
 import moniker from 'moniker';
 
 accountsServer.users = Users;
 
 export default ({ mergeUserCartsOnLogin = true } = {}) => {
   accountsPassword.options.validateNewUser = (user) => {
-    const clone = cloneDeep(user);
-    if (clone.email) {
-      clone.emails = [
-        {
-          address: clone.email,
-          verified: false,
-        },
-      ];
-      delete clone.email;
-    }
-    delete clone._id;
-    Users.simpleSchema()
+    const customSchema = Users.simpleSchema()
       .extend({
         password: String,
+        email: String,
       })
-      .omit('created')
-      .validate(clone);
-    const newUser = user;
-    if (user?.services?.google) {
-      newUser.profile = {
-        name: user.services.google.name,
-        ...user.profile,
-      };
-      newUser.emails = [
-        { address: user.services.google.email, verified: true },
-      ];
-    }
-    if (user?.services?.facebook) {
-      newUser.profile = {
-        name: user.services.facebook.name,
-        ...user.profile,
-      };
-      newUser.emails = [
-        { address: user.services.facebook.email, verified: true },
-      ];
-    }
-    return newUser;
+      .omit('created', 'emails', '_id', 'services');
+
+    customSchema.validate(user);
+    return customSchema.clean(user);
   };
 
   accountsServer.services.guest = {
@@ -62,6 +32,8 @@ export default ({ mergeUserCartsOnLogin = true } = {}) => {
           email: params.email || `${guestname}@unchained.local`,
           guest: true,
           profile: {},
+          password: null,
+          initialPassword: true,
         },
         context
       );
@@ -86,15 +58,13 @@ export default ({ mergeUserCartsOnLogin = true } = {}) => {
       countryContext,
     });
     if (userIdBeforeLogin) {
-      Promise.await(
-        Orders.migrateCart({
-          fromUserId: userIdBeforeLogin,
-          toUserId: user._id,
-          locale: normalizedLocale,
-          countryContext,
-          mergeCarts: mergeUserCartsOnLogin,
-        })
-      );
+      await Orders.migrateCart({
+        fromUserId: userIdBeforeLogin,
+        toUserId: user._id,
+        locale: normalizedLocale,
+        countryContext,
+        mergeCarts: mergeUserCartsOnLogin,
+      });
 
       await services.migrateBookmarks(
         {
@@ -107,9 +77,31 @@ export default ({ mergeUserCartsOnLogin = true } = {}) => {
     }
   });
 
+  accountsServer.on('ResetPasswordSuccess', (user) => {
+    Users.rawCollection().updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          initialPassword: false,
+        },
+      }
+    );
+  });
+
+  accountsServer.on('ChangePasswordSuccess', (user) => {
+    Users.rawCollection().updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          initialPassword: false,
+        },
+      }
+    );
+  });
+
   accountsServer.on('ValidateLogin', ({ service, user }) => {
     if (service !== 'guest' && user.guest) {
-      Users.update(
+      Users.rawCollection().updateOne(
         { _id: user._id },
         {
           $set: {

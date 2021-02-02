@@ -1,6 +1,6 @@
 Package.describe({
   name: 'unchained:platform',
-  version: '0.61.0',
+  version: '0.61.3',
   summary: 'Unchained Engine',
   git: 'https://github.com/unchainedshop/unchained',
   documentation: 'README.md',
@@ -8,7 +8,6 @@ Package.describe({
 
 Npm.depends({
   moniker: '0.1.2',
-  'lodash.clonedeep': '4.5.0',
   open: '7.3.1',
 });
 
