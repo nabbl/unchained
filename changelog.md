@@ -2,6 +2,7 @@
 
 ## Breaking changes
 - [core] Remove cron worker `unchained:core-worker/workers/cron`, use the interval worker instead
+- [core] `cronText` has been removed in favor of `schedule`, schedule has to be a later.js compliant schedule definition. If you want to reuse the custom cronText define schedule like `later.parse.text('every 5 mins');`
 - [schema] `Money` type has been completely removed and replace with `Price`.
   This change will affect the following types and any other type that has fields of this types
 

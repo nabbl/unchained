@@ -11,22 +11,18 @@ export const workerTypeDefs = () => [
   `,
 ];
 
-export default ({ cronText }) => {
-  const handlers = [];
-  handlers.push(new FailedRescheduler({ WorkerDirector }));
-  handlers.push(
+export default (options) => {
+  const handlers = [
+    new FailedRescheduler({ WorkerDirector, ...options }),
     new EventListenerWorker({
       WorkerDirector,
-    })
-  );
-  if (cronText) {
-    handlers.push(
-      new IntervalWorker({
-        WorkerDirector,
-        cronText,
-      })
-    );
-  }
+      ...options,
+    }),
+    new IntervalWorker({
+      WorkerDirector,
+      ...options,
+    }),
+  ];
 
   handlers.forEach((handler) => handler.start());
   return handlers;
