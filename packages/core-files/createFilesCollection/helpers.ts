@@ -1,11 +1,8 @@
 import fileType from 'file-type';
 import crypto from 'crypto';
-import fs from 'fs';
-import os from 'os';
-import { sep } from 'path';
 import { Meteor } from 'meteor/meteor';
 import { MongoInternals } from 'meteor/mongo';
-import { FileTypes, FileObj } from './types';
+import { FileObj } from './types';
 
 export const bound = Meteor.bindEnvironment((callback) => callback());
 
@@ -169,25 +166,6 @@ export const responseHeaders = (responseCode, versionRef) => {
   return headers;
 };
 
-const tmpDir = os.tmpdir();
-
-const FILE_STORAGE_TEMP_FOLDER = fs.mkdtempSync(`${tmpDir}${sep}`);
-
-export const storagePath = (collectionName: string) => {
-  return `${FILE_STORAGE_TEMP_FOLDER}${sep}${collectionName}`;
-};
-
-export const updateFileTypes = (type: string): FileTypes => {
-  return {
-    isVideo: /^video\//i.test(type),
-    isAudio: /^audio\//i.test(type),
-    isImage: /^image\//i.test(type),
-    isText: /^text\//i.test(type),
-    isJSON: /^application\/json$/i.test(type),
-    isPDF: /^application\/(x-)?pdf$/i.test(type),
-  };
-};
-
 export const dataToSchema = (data): FileObj => {
   const dataSchema = {
     name: data.name,
@@ -211,8 +189,6 @@ export const dataToSchema = (data): FileObj => {
     },
     downloadRoute: '/cdn/storage',
     collectionName: data.collectionName,
-    ...updateFileTypes(data.type),
-    storagePath: data.storagePath || storagePath(data.collectionName),
     _id: data.fileId,
   };
 
