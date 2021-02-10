@@ -79,5 +79,7 @@
   "eslintConfig": {
     "extends": "@meteorjs/eslint-config-meteor"
   },
-  "dependencies": {}
+  "dependencies": {
+    "intersection-observer": "^0.12.0"
+  }
 }

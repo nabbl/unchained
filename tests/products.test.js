@@ -44,17 +44,13 @@ describe('Products', () => {
               ... on SimpleProduct {
                 catalogPrice {
                   _id
-                  price {
-                    amount
-                    currency
-                  }
+                  amount
+                  currency
                 }
                 simulatedPrice {
                   _id
-                  price {
-                    amount
-                    currency
-                  }
+                  amount
+                  currency
                 }
               }
             }
@@ -683,13 +679,19 @@ describe('Products', () => {
           query product($productId: ID, $slug: String) {
             product(productId: $productId, slug: $slug) {
               _id
+              tags
               ... on SimpleProduct {
                 simulatedPrice {
                   _id
-                  price {
-                    amount
-                    currency
-                  }
+                  amount
+                  currency
+                }
+                catalogPrice {
+                  _id
+                  isTaxable
+                  isNetPrice
+                  amount
+                  currency
                 }
               }
             }
@@ -700,7 +702,7 @@ describe('Products', () => {
         },
       });
 
-      expect(product?.simulatedPrice?.price?.currency).toEqual('CHF');
+      expect(product?.simulatedPrice?.currency).toEqual('CHF');
     });
 
     it('return null when passed unsupported currency to simulatedPrice of SIMPLE_PRODUCT type', async () => {
@@ -714,10 +716,8 @@ describe('Products', () => {
               ... on SimpleProduct {
                 simulatedPrice(currency: "ETB") {
                   _id
-                  price {
-                    amount
-                    currency
-                  }
+                  amount
+                  currency
                 }
               }
             }
@@ -742,10 +742,8 @@ describe('Products', () => {
               ... on PlanProduct {
                 simulatedPrice {
                   _id
-                  price {
-                    amount
-                    currency
-                  }
+                  amount
+                  currency
                 }
               }
             }
@@ -755,8 +753,7 @@ describe('Products', () => {
           productId: 'plan-product',
         },
       });
-
-      expect(product?.simulatedPrice?.price?.currency).toEqual('CHF');
+      expect(product?.simulatedPrice?.currency).toEqual('CHF');
     });
 
     it('return null when passed unsupported currency to simulatedPrice of PLAN_PRODUCT type', async () => {
@@ -770,10 +767,8 @@ describe('Products', () => {
               ... on PlanProduct {
                 simulatedPrice(currency: "ETB") {
                   _id
-                  price {
-                    amount
-                    currency
-                  }
+                  amount
+                  currency
                 }
               }
             }

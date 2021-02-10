@@ -6,16 +6,38 @@
 
 ## Major
 - [files] had undergone a similar change to the roles package keeping only the used APIs and improving the package health by adding Typescript.
+- [schema] `Money` type has been completely removed and replace with `Price`.
+  This change will affect the following types and any other type that has fields of this types
+
+  ```
+  ProductPrice.price
+  ProductDiscount.total
+  DeliveryFee.price
+  Order.total
+  OrderDelivery.fee
+  OrderDiscountable.total
+  OrderDiscount.total
+  OrderItem.unitPrice
+  OrderItem.total
+  OrderPayment.fee
+
+  ```
+
+- [api] New mutation.signPaymentProviderForCheckout to sign generic order payment directly (OrderPayment.sign still works but is marked deprecated and will be removed in future major releases)
+- [api] three new fields added `ConfigurableProduct.simulatedPriceRange` , `ConfigurableProduct.catalogPriceRange`, `SimulateProduct.leveledCatalogPrices` `PlanProduct.leveledCatalogPrices`
+- [product] `simulatePriceRange` and `catalogPriceRange` helpers added that will return price range of products variations assigned for a particular configurable(proxy) product based on the parameters provided to them.
 
 # v0.61.1
 
 This is a bugfix release based on learnings from upgrading client projects
 
 ## Breaking changes
+- [api] Fix `logout` regression with not falling back to the current token when used without explicit token
 - [core] `Users.createUser` now sends messages by default, you have to explicitly bail out by either providing an option `skipMessaging` to true or set the new `autoMessagingAfterUserCreation` module param of users to `false`. Take a look at your seed scripts.
 - [platform] Certain fields like `emails` and `services` are now blocked from passing to `Users.createUser`. If you have used `emails` in `createUser` seeding before, use email. If you want to skip e-mail verification forcefully, use `initialPassword: true`. See the changes in the minimal example seed file to get a glimpse.
 
 ## Minor
+
 - [examples] Fix minimal example not seeding
 - [api] Fix children not receiving includeInactive
 - [core] Fix core not receiving module configuration of users
@@ -27,10 +49,12 @@ This is a bugfix release based on learnings from upgrading client projects
 This is a bugfix release based on learnings from upgrading client projects
 
 ## Breaking changes
+
 - [api] Removes filterContext and evalContext
 - [core] Enrollment E-Mails are sent automatically when `enrollUser` is used with an empty password
 
 ## Minor
+
 - [api] Re-introduce `context` field to startPlatform, allowing access to the unchained context function so it's possible to adjust the Apollo Server context freely
 - [core] Fix regression with forced sortKey parameters when modifying links, filters or products
 - [core] Fix regression with enrollment of users triggering verification e-mail #307
@@ -41,6 +65,7 @@ This is a bugfix release based on learnings from upgrading client projects
 We are currently rebuilding parts of Unchained under the hood with a new code structure that helps developers to easily add new resolvers and access the core API's through typescript types.
 
 ## Breaking Changes
+- [platform] Account Action E-Mail templates now receive different actions than before, for ex. `verifyEmail` is now `verify-email`
 - [api] `Mutation.setBaseLanguage` removed, base language now set through env `LANG`
 - [api] `Mutation.setBaseCountry` removed, base language now set through env `COUNTRY`
 - [api] `isBase` removed for countries and languages
@@ -53,6 +78,7 @@ We are currently rebuilding parts of Unchained under the hood with a new code st
 - [api] NotFoundErrors have been removed from various queries which return an optional single entity, like Query.product(...): Product #299, affects `Query.country`, `Query.currency`, `Query.deliveryProvider`, `Query.filter`, `Query.language`, `Query.order`, `Query.paymentProvider`, `Query.product`, `Query.productCatalogPrices`, `Query.productReview`, `Query.quotation`, `Query.searchProducts (assortmentId)`, `Query.subscription`, `Query.user`, `Query.warehousingProvider`, `Query.work`
 
 ## Major
+
 - [api] Add Assortment.childrenCount to get a number of child assortments
 - [api] New Query.activeWorkTypes to query for all active work types without introspection
 - [api] Support for Data Loader
@@ -63,12 +89,13 @@ We are currently rebuilding parts of Unchained under the hood with a new code st
  We are currently rebuilding parts of Unchained under the hood with a new code structure that helps developers to easily add new resolvers and access the core API's through typescript types
 - [api,core] Business logic and db calls are now wrapped in functions and moved from api to the core packages
 - [pricing] New open-source pricing plugins:
-- - EUR catalog price auto conversion with ECB rates
-- - Crypto catalog price auto conversion with Coinbase rates
-- - Mercantile Rounding
+  - - EUR catalog price auto conversion with ECB rates
+  - - Crypto catalog price auto conversion with Coinbase rates
+  - - Mercantile Rounding
 - [payment] Our official Datatrans plugin now supports all different security modes for signing a transaction through env `DATATRANS_SECURITY` and `DATATRANS_SIGN2_KEY`. In the meantime Datatrans has released a new modern JSON based 2.0 API. Our Plugin still only supports the legacy API described here <https://docs.datatrans.ch/v1.0.1/docs/getting-started-home>
 
 ## Minor
+
 - [docs] Added product pricing plugin documentation
 - [controlpanel] Updated theming that better reflects our current CI/CD
 - [controlpanel] New filters for the work queue to find jobs you're interested in
@@ -77,6 +104,7 @@ We are currently rebuilding parts of Unchained under the hood with a new code st
 - [tests] Index creation is now reused of example project instead of mocked in db setup
 
 ## Patches
+
 - [accountsjs] Regression, default token expiration now after 30 days instead of 20 minutes
 - [bulk] Regression, removal did not work
 
@@ -118,6 +146,7 @@ Look for `Accounts.registerLoginHandler`, `Accounts.onLogin` or Meteor Accounts 
 
 ## Breaking Changes
 
+- [api] Auth-related Errors in signup, signin, lost password etc. have other Error Codes now. See https://www.accountsjs.com/docs/api/server/globals#enumerations for more information.
 - [users] `addEmail` and `updateEmail` no longer send out email verification; you need to trigger the verification using `sendVerificationEmail` mutation.
 - [users] `enrollUser` doesn't send out the enrollment email by default anymore. You need to trigger it using `sendEnrollmentEmail` mutation.
 - [api] The functions `getConnection` and `callMethod` have been removed
@@ -332,6 +361,7 @@ We will rename all unchained core specific env variables and prefix them with UN
 # v0.48.0
 
 ## Breaking Changes
+
 We will rename all unchained core specific env variables and prefix them with UNCHAINED\_ in the future, for now:
 
 - The Environment variable DISABLE_WORKER has been renamed to UNCHAINED_DISABLE_WORKER
