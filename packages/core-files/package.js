@@ -22,7 +22,7 @@ Package.onUse((api) => {
 
   api.mainModule('core-files.ts');
   api.export('FilesCollection');
-  api.use('unchained:core-settings@0.61.1');
+  api.use('unchained:core-settings@0.61.0');
 });
 
 Package.onTest((api) => {
