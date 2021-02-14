@@ -16,8 +16,8 @@ Npm.depends({
 
 Package.onUse((api) => {
   api.versionsFrom('1.12');
-  api.use('webapp', 'server');
-  api.use(['mongo', 'ecmascript'], ['client', 'server']);
+  api.use(['mongo', 'webapp'], 'server');
+  api.use('ecmascript');
   api.use('typescript');
 
   api.mainModule('core-files.ts');
