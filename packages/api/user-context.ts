@@ -1,12 +1,20 @@
 import { accountsServer } from 'meteor/unchained:core-accountsjs';
 import { Users } from 'meteor/unchained:core-users';
 import { check } from 'meteor/check';
+import { User } from './interfaces/user';
 
 export interface UnchainedServerUserContext {
   userId?: string;
   user?: any;
   loginToken?: string;
 }
+
+const getFetch = async (url, { headers, method = 'GET' }) => {
+  return fetch(url, {
+    method,
+    headers,
+  });
+};
 
 export default async (req): Promise<UnchainedServerUserContext> => {
   // there is a possible current user connected!
@@ -58,6 +66,33 @@ export default async (req): Promise<UnchainedServerUserContext> => {
           loginToken,
         };
       }
+    } else {
+        const response = await getFetch(`https://uptown-development.panter.biz/api/v1/current_user`, { headers: { authorization: req.headers.authorization }});
+        const contentType = response.headers.get('content-type');
+        const isJson = contentType && contentType.includes('application/json');
+  
+        if (isJson && response.status === 200 && response.ok) {
+          const user = await response.json() as User ;
+          let dbUser = Users.findOne( {username: user.email });
+          if (!dbUser) {
+              const id = Users.insert(
+              {
+                username: user.email,
+                roles: ['admin'],
+                emails: [ { address: user.email, verified: true } ],
+                profile: { address: { street: user.full_address }, displayName: user.full_name },
+                guest: false,
+                created: new Date()
+              },
+            );
+            dbUser = Users.findUser({userId:id});
+          }
+          return {
+            user: dbUser,
+            userId: dbUser._id,
+            loginToken,
+          };
+        }
     }
     return { loginToken };
   }

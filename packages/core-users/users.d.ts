@@ -33,6 +33,7 @@ declare module 'meteor/unchained:core-users' {
     avatarId?: string;
     services?: any;
     roles?: string[];
+    created?: Date
   };
 
   class UsersCollection extends Mongo.Collection<User> {
