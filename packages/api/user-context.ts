@@ -3,13 +3,19 @@ import { Users } from 'meteor/unchained:core-users';
 import { check } from 'meteor/check';
 import { User } from './interfaces/user';
 
+const { USER_API } = process.env;
+
 export interface UnchainedServerUserContext {
   userId?: string;
   user?: any;
   loginToken?: string;
 }
 
-const getFetch = async (url, { headers, method = 'GET' }) => {
+const getFetch = async (
+  url: string,
+  headers: Record<string, string>,
+  method: 'GET' | 'POST' = 'GET'
+) => {
   return fetch(url, {
     method,
     headers,
@@ -30,6 +36,9 @@ export default async (req): Promise<UnchainedServerUserContext> => {
     if (type === 'Bearer') {
       loginToken = token;
     }
+  }
+  if (req.headers['access-token']) {
+    loginToken = req.headers['access-token'];
   }
   if (loginToken) {
     // throw an error if the token is not a string
@@ -67,32 +76,42 @@ export default async (req): Promise<UnchainedServerUserContext> => {
         };
       }
     } else {
-        const response = await getFetch(`https://uptown-development.panter.biz/api/v1/current_user`, { headers: { authorization: req.headers.authorization }});
-        const contentType = response.headers.get('content-type');
-        const isJson = contentType && contentType.includes('application/json');
-  
-        if (isJson && response.status === 200 && response.ok) {
-          const user = await response.json() as User ;
-          let dbUser = Users.findOne( {username: user.email });
-          if (!dbUser) {
-              const id = Users.insert(
-              {
-                username: user.email,
-                roles: ['admin'],
-                emails: [ { address: user.email, verified: true } ],
-                profile: { address: { street: user.full_address }, displayName: user.full_name },
-                guest: false,
-                created: new Date()
-              },
-            );
-            dbUser = Users.findUser({userId:id});
-          }
-          return {
-            user: dbUser,
-            userId: dbUser._id,
-            loginToken,
-          };
+      const response = await getFetch(
+        'https://uptown-development.panter.biz/api/v1/auth/validate_token',
+        {
+          'access-token': req.headers['access-token'],
+          client: req.headers.client,
+          'token-type': 'Bearer',
+          uid: req.headers.uid,
+        },
+        'GET'
+      );
+      const contentType = response.headers.get('content-type');
+      const isJson = contentType && contentType.includes('application/json');
+
+      if (isJson && response.status === 200 && response.ok) {
+        const user = (await response.json()).data as User;
+        let dbUser = Users.findOne({ username: user.email });
+        if (!dbUser) {
+          const id = Users.insert({
+            username: user.email,
+            roles: [],
+            emails: [{ address: user.email, verified: true }],
+            profile: {
+              address: { street: user.full_address },
+              displayName: user.full_name,
+            },
+            guest: false,
+            created: new Date(),
+          });
+          dbUser = Users.findUser({ userId: id });
         }
+        return {
+          user: dbUser,
+          userId: dbUser._id,
+          loginToken,
+        };
+      }
     }
     return { loginToken };
   }
